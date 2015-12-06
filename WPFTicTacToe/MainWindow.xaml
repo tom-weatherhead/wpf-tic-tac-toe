@@ -1,0 +1,111 @@
+﻿<Window x:Class="WPFTicTacToe.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:ComponentModel="clr-namespace:System.ComponentModel;assembly=System"
+        Title="WPF Tic Tac Toe" SizeToContent="WidthAndHeight">
+    <Window.CommandBindings>
+        <CommandBinding Command="New" Executed="NewCommand_Executed" />
+        <CommandBinding Command="Close" Executed="CloseCommand_Executed" />
+    </Window.CommandBindings>
+    <Window.Resources>
+        <Canvas x:Key="XCanvas">
+            <!-- Two red-filled rectangles, each 100 units long and 15 units wide. -->
+            <Rectangle Canvas.Left="12" Canvas.Top="55" Width="100" Height="15" RenderTransformOrigin="0.5,0.5" Fill="Red">
+                <Rectangle.RenderTransform>
+                    <RotateTransform Angle="45" />
+                </Rectangle.RenderTransform>
+            </Rectangle>
+            <Rectangle Canvas.Left="55" Canvas.Top="12" Width="15" Height="100" RenderTransformOrigin="0.5,0.5" Fill="Red">
+                <Rectangle.RenderTransform>
+                    <RotateTransform Angle="45" />
+                </Rectangle.RenderTransform>
+            </Rectangle>
+        </Canvas>
+        <Canvas x:Key="OCanvas">
+            <Ellipse Canvas.Left="12" Canvas.Top="12" Width="100" Height="100" Fill="Lime" />
+            <Ellipse Canvas.Left="27" Canvas.Top="27" Width="70" Height="70" Fill="White" />
+        </Canvas>
+        <ContextMenu x:Key="imageContextMenu">
+            <!-- The CommandTarget attribute is needed to enable the context menu item.
+                 See: http://social.msdn.microsoft.com/Forums/en-US/wpf/thread/7bd75a7c-eab4-4f3a-967b-94a9534a7455/
+            -->
+            <MenuItem Header="New Game" Command="New"
+                      CommandTarget="{Binding Path=PlacementTarget,RelativeSource={RelativeSource AncestorType={x:Type ContextMenu}}}">
+            </MenuItem>
+        </ContextMenu>
+        <!--A Style that affects all Images-->
+        <Style TargetType="Image">
+            <Setter Property="Width" Value="125" />
+            <Setter Property="Height" Value="125" />
+            <Setter Property="Source" Value="Images/Empty.png" />
+            <Setter Property="Margin" Value="10" />
+            <EventSetter Event="MouseUp" Handler="Image_MouseUp" />
+        </Style>
+        <Style TargetType="Canvas">
+            <Setter Property="Width" Value="125" />
+            <Setter Property="Height" Value="125" />
+            <Setter Property="Margin" Value="10" />
+            <Setter Property="Background" Value="White" />
+            <EventSetter Event="MouseUp" Handler="Image_MouseUp" />
+        </Style>
+        <!--
+        <ComponentModel:BackgroundWorker
+            x:Key="backgroundWorker"
+            WorkerReportsProgress="True"
+            WorkerSupportsCancellation="True"
+            DoWork="BackgroundWorker_DoWork"
+            RunWorkerCompleted="BackgroundWorker_RunWorkerCompleted"
+            ProgressChanged="BackgroundWorker_ProgressChanged" />
+        -->
+        <ComponentModel:BackgroundWorker
+            x:Key="backgroundWorker"
+            WorkerSupportsCancellation="True"
+            DoWork="BackgroundWorker_DoWork"
+            RunWorkerCompleted="BackgroundWorker_RunWorkerCompleted" />
+    </Window.Resources>
+    <StackPanel>
+        <Menu>
+            <MenuItem Header="_File">
+                <MenuItem Header="New Game" Command="New"></MenuItem>
+                <MenuItem Header="Resize Board">
+                    <MenuItem Name="menuItem_Resize3x3" Header="3 x 3" IsCheckable="True" Click="Resize3_Click"></MenuItem>
+                    <MenuItem Name="menuItem_Resize4x4" Header="4 x 4" IsCheckable="True" Click="Resize4_Click"></MenuItem>
+                </MenuItem>
+                <MenuItem Header="Game Engine">
+                    <MenuItem Name="menuItem_gameEngine_InProcess" Header="In-Process" IsCheckable="True" Click="SelectGameEngine_InProcess_Click"></MenuItem>
+                    <MenuItem Name="menuItem_gameEngine_CSharpSOAP" Header="C# SOAP" IsCheckable="True" Click="SelectGameEngine_CSharpSOAP_Click"></MenuItem>
+                    <MenuItem Name="menuItem_gameEngine_JavaSOAP" Header="Java SOAP" IsCheckable="True" Click="SelectGameEngine_JavaSOAP_Click"></MenuItem>
+                    <MenuItem Name="menuItem_gameEngine_PHPREST" Header="PHP REST Ubuntu VM" IsCheckable="True" Click="SelectGameEngine_PHPREST_Click"></MenuItem>
+                    <MenuItem Name="menuItem_gameEngine_PHPRESTLocalhost" Header="PHP REST localhost" IsCheckable="True" Click="SelectGameEngine_PHPRESTLocalhost_Click"></MenuItem>
+                    <MenuItem Name="menuItem_gameEngine_PHPRESTXPVM" Header="PHP REST XP VM" IsCheckable="True" Click="SelectGameEngine_PHPRESTXPVM_Click"></MenuItem>
+                    <MenuItem Name="menuItem_gameEngine_PerlRESTUbuntuVM" Header="Perl REST Ubuntu VM" IsCheckable="True" Click="SelectGameEngine_PerlRESTUbuntuVM_Click"></MenuItem>
+                </MenuItem>
+                <MenuItem Header="Exit" Command="Close"></MenuItem>
+            </MenuItem>
+        </Menu>
+        <Grid Name="boardGrid" Background="LightGray" ContextMenu="{StaticResource imageContextMenu}">
+        </Grid>
+        <TextBlock Name="messageLabel" HorizontalAlignment="Center" Margin="10">TextBlock</TextBlock>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <CheckBox Grid.Column="0" Name="automateX" HorizontalAlignment="Center" Click="automateX_Click">Automate X</CheckBox>
+            <CheckBox Grid.Column="1" Name="automateO" HorizontalAlignment="Center" Click="automateO_Click">Automate O</CheckBox>
+            <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Center">
+                <TextBlock Margin="4">Depth:</TextBlock>
+                <TextBox Name="tbXPly" Margin="4" Width="40" LostFocus="tbXPly_LostFocus"></TextBox>
+            </StackPanel>
+            <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center">
+                <TextBlock Margin="4">Depth:</TextBlock>
+                <TextBox Name="tbOPly" Margin="4" Width="40" LostFocus="tbOPly_LostFocus"></TextBox>
+            </StackPanel>
+        </Grid>
+        <Button Name="btnNewGame" HorizontalAlignment="Center" Margin="10" Command="New">New Game</Button>
+    </StackPanel>
+</Window>
